@@ -3,13 +3,15 @@ import robot from 'robotjs';
 import Jimp from 'jimp';
 import { WebSocketServer, createWebSocketStream } from 'ws';
 import 'dotenv/config';
+import drawCircle from '../utils/circle.js';
+import drawRectangle from '../utils/rectangle.js';
 
 const WS_PORT = process.env.WS_PORT;
 
 const wsServer = new WebSocketServer({ port: Number(WS_PORT) });
 
 wsServer.on("connection", (socket, req) => {
-  const duplex = createWebSocketStream(socket, { encoding: 'utf8' });
+  const duplex = createWebSocketStream(socket, { encoding: 'utf8', decodeStrings: false });
   duplex.on('data', (data) => console.log(data));
 
   console.log(`Established connection with ${req.socket.remoteAddress}`);
@@ -34,7 +36,20 @@ wsServer.on("connection", (socket, req) => {
         robot.moveMouse(mousePos.x + Number(packet[1]), mousePos.y);
         break;  
       case 'mouse_position':
-        duplex.push(`mouse_position ${mousePos.x},${mousePos.y}`);
+        const res = `mouse_position ${mousePos.x},${mousePos.y}`;
+        duplex.write(res);
+        duplex.push(res);
+        break;
+      case 'draw_circle':
+        drawCircle(Number(packet[1]), mousePos);
+        break;  
+      case 'draw_rectangle':
+        drawRectangle(Number(packet[2]), Number(packet[1]), mousePos);
+        break;
+      case 'draw_square':
+        drawRectangle(Number(packet[1]), Number(packet[1]), mousePos);
+        break;
+      case 'prnt_scrn':
         break;  
     }
   });
