@@ -9,8 +9,6 @@ httpServer.listen(HTTP_PORT, () => {
   console.log(`Front-end running at http://localhost:${HTTP_PORT}/`);
 });
 
-wsServer;
-
 process.on('SIGINT', () => {
   wsServer.clients.forEach((socket) => {
     socket.close();
