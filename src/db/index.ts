@@ -1,20 +1,21 @@
-import { IDB } from '../models';
+import { IDB, IDBWrapped } from '../models/index.js';
 
-const db: IDB = {
-  users: [],
-  rooms: [],
-  games: [],
+const db: IDBWrapped = {
+  battleship: {
+    users: [],
+    rooms: [],
+    games: [],
+  },
 };
 
 function setDB(newDb: IDB) {
-  for (const key in db) {
-    db[key] = newDb[key];
-  }
-  return db;
+  db.battleship = newDb;
+  console.log('DB: ' + JSON.stringify(db.battleship));
+  return db.battleship;
 }
 
 function getDB(): IDB {
-  return JSON.parse(JSON.stringify(db));
+  return JSON.parse(JSON.stringify(db.battleship));
 }
 
 export { getDB, setDB };
