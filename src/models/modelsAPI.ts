@@ -27,7 +27,7 @@ interface IWinnerRes {
   id: 0;
 }
 // Room
-interface ICreateRoomRes {
+interface ICreateRoomReq {
   type: 'create_room';
   data: '';
   id: 0;
@@ -125,7 +125,7 @@ export {
   IPlayerReq,
   IPlayerRes,
   IWinnerRes,
-  ICreateRoomRes,
+  ICreateRoomReq,
   IUpdateRoomRes,
   IAddPlayerReq,
   ICreateGameRes,

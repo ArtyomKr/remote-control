@@ -2,7 +2,7 @@ export {
   IPlayerReq,
   IPlayerRes,
   IWinnerRes,
-  ICreateRoomRes,
+  ICreateRoomReq,
   IUpdateRoomRes,
   IAddPlayerReq,
   ICreateGameRes,
@@ -13,4 +13,4 @@ export {
   IChangeTurnRes,
   IFinishGameRes,
 } from './modelsAPI';
-export { IUser, IShip, IDB } from './modelsDB';
+export { IUser, IShip, IDB, IDBWrapped } from './modelsDB';

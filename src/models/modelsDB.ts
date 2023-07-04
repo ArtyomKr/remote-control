@@ -4,6 +4,10 @@ interface IDB {
   games: IGame[];
 }
 
+interface IDBWrapped {
+  battleship: IDB;
+}
+
 interface IUser {
   id: number;
   name: string;
@@ -34,4 +38,4 @@ interface IShip {
   type: 'small' | 'medium' | 'large' | 'huge';
 }
 
-export { IUser, IShip, IDB };
+export { IUser, IShip, IDB, IDBWrapped };
