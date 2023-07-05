@@ -1,10 +1,10 @@
-import { IShip, IUser } from './modelsDB';
+import { IRoom, IShip, IUser } from './modelsDB';
 
 // Player
 interface IPlayerReq {
   type: 'reg';
-  data: Omit<IUser, 'id'>;
-  id: 0;
+  data: Omit<IUser, 'index'>;
+  id: number;
 }
 
 interface IPlayerRes {
@@ -15,7 +15,7 @@ interface IPlayerRes {
     error: boolean;
     errorText: string;
   };
-  id: 0;
+  id: number;
 }
 
 interface IWinnerRes {
@@ -24,13 +24,13 @@ interface IWinnerRes {
     name: string;
     wins: number;
   };
-  id: 0;
+  id: number;
 }
 // Room
 interface ICreateRoomReq {
   type: 'create_room';
   data: '';
-  id: 0;
+  id: number;
 }
 
 interface IAddPlayerReq {
@@ -38,7 +38,7 @@ interface IAddPlayerReq {
   data: {
     indexRoom: number;
   };
-  id: 0;
+  id: number;
 }
 
 interface ICreateGameRes {
@@ -47,19 +47,13 @@ interface ICreateGameRes {
     idGame: number;
     idPlayer: number;
   };
-  id: 0;
+  id: number;
 }
 
 interface IUpdateRoomRes {
   type: 'update_room';
-  data: {
-    roomId: number;
-    roomUsers: {
-      name: string;
-      index: number;
-    }[];
-  };
-  id: 0;
+  data: IRoom[];
+  id: number;
 }
 // Ship
 interface IAddShipsReq {
@@ -69,7 +63,7 @@ interface IAddShipsReq {
     ships: IShip[];
     indexPlayer: number;
   };
-  id: 0;
+  id: number;
 }
 // Game actions
 interface IAttackReq {
@@ -80,7 +74,7 @@ interface IAttackReq {
     y: number;
     indexPlayer: number;
   };
-  id: 0;
+  id: number;
 }
 
 interface IAttackRes {
@@ -93,7 +87,7 @@ interface IAttackRes {
     currentPlayer: number;
     status: 'miss' | 'killed' | 'shot';
   };
-  id: 0;
+  id: number;
 }
 
 interface IRandomAttackReq {
@@ -102,7 +96,7 @@ interface IRandomAttackReq {
     gameID: number;
     indexPlayer: number;
   };
-  id: 0;
+  id: number0;
 }
 // Turns
 interface IChangeTurnRes {
@@ -110,7 +104,7 @@ interface IChangeTurnRes {
   data: {
     currentPlayer: number;
   };
-  id: 0;
+  id: number;
 }
 
 interface IFinishGameRes {
@@ -118,7 +112,7 @@ interface IFinishGameRes {
   data: {
     winPlayer: number;
   };
-  id: 0;
+  id: number;
 }
 
 export {

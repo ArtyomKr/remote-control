@@ -9,7 +9,7 @@ interface IDBWrapped {
 }
 
 interface IUser {
-  id: number;
+  index: number;
   name: string;
   password: string;
 }
@@ -38,4 +38,4 @@ interface IShip {
   type: 'small' | 'medium' | 'large' | 'huge';
 }
 
-export { IUser, IShip, IDB, IDBWrapped };
+export { IUser, IShip, IRoom, IDB, IDBWrapped };
