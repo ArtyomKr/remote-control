@@ -8,9 +8,14 @@ function addUser(user: IUser) {
   return user;
 }
 
-function findUser(userName: string) {
+function findUserByName(userName: string) {
   const db = getDB();
   return db.users.find(({ name }) => name === userName);
 }
 
-export { addUser, findUser };
+function findUserById(userId: number) {
+  const db = getDB();
+  return db.users.find(({ index }) => index === userId);
+}
+
+export { addUser, findUserByName, findUserById };
