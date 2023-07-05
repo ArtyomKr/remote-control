@@ -1,33 +1,32 @@
 import { IPlayerReq, IPlayerRes } from '../models/index.js';
-import { addUser, findUser } from '../dbHelpers/index.js';
+import { addUser, findUserByName } from '../dbHelpers/index.js';
 
 function loginHandler(req: IPlayerReq): IPlayerRes {
   const res = {
     type: req.type,
     data: {
-      index: 0,
+      index: req.id,
       name: '',
       error: true,
-      errorText: 'User not found!',
+      errorText: 'Incorrect password!',
     },
-    id: req.id,
+    id: 0,
   };
-  const user = { ...req.data, id: req.id };
-  const foundUser = findUser(user.name);
+  const user = { ...req.data, index: req.id };
+  const foundUser = findUserByName(user.name);
 
   if (foundUser && foundUser.password === user.password) {
-    const { id, name } = foundUser;
+    const { index, name } = foundUser;
     res.data = {
-      index: id,
+      index,
       name,
       error: false,
       errorText: '',
     };
-  } else if (foundUser && foundUser.password !== user.password) res.data.errorText = 'Incorrect password!';
-  else if (!foundUser) {
-    const { id, name } = addUser(user);
+  } else if (!foundUser) {
+    const { index, name } = addUser(user);
     res.data = {
-      index: id,
+      index,
       name,
       error: false,
       errorText: '',
