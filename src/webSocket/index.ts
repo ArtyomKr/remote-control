@@ -34,21 +34,8 @@ wsServer.on('connection', (socket, req) => {
         res = loginHandler(req);
         break;
       case 'create_room':
+      case 'add_player_to_room':
         res = roomHandler(req);
-        break;
-      case 'mouse_left':
-        break;
-      case 'mouse_right':
-        break;
-      case 'mouse_position':
-        break;
-      case 'draw_circle':
-        break;
-      case 'draw_rectangle':
-        break;
-      case 'draw_square':
-        break;
-      case 'prnt_scrn':
         break;
     }
 
