@@ -34,7 +34,7 @@ interface ICreateRoomReq {
 }
 
 interface IAddPlayerReq {
-  type: 'add_player_to_room';
+  type: 'add_user_to_room';
   data: {
     indexRoom: number;
   };
@@ -96,7 +96,7 @@ interface IRandomAttackReq {
     gameID: number;
     indexPlayer: number;
   };
-  id: number0;
+  id: number;
 }
 // Turns
 interface IChangeTurnRes {
