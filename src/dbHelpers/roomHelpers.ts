@@ -2,10 +2,9 @@ import { getDB, setDB } from '../db/index.js';
 import { IRoom, IUser } from '../models/modelsDB.js';
 import { findUserById } from './userHelpers.js';
 
-function createRoom(userId: number) {
+function createRoom() {
   const db = getDB();
-  const { name, index } = <IUser>findUserById(userId);
-  const newRoom = { roomId: db.rooms.length, roomUsers: [{ name, index }] };
+  const newRoom = { roomId: db.rooms.length, roomUsers: [] };
 
   db.rooms.push(newRoom);
   setDB(db);
@@ -19,7 +18,14 @@ function addPlayerToRoom(roomIndex: number, userId: number) {
 
   room.roomUsers.push({ name, index });
   setDB(db);
-  return db.rooms;
+  return room;
 }
 
-export { createRoom, addPlayerToRoom };
+function deleteRoom(roomIndex: number) {
+  const db = getDB();
+  db.rooms = db.rooms.filter(({ roomId }) => roomId !== roomIndex);
+
+  setDB(db);
+}
+
+export { createRoom, addPlayerToRoom, deleteRoom };
