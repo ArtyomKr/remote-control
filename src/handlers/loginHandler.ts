@@ -5,26 +5,18 @@ function loginHandler(req: IPlayerReq): IPlayerRes {
   const res = {
     type: req.type,
     data: {
-      index: req.id,
+      index: NaN,
       name: '',
       error: true,
       errorText: 'Incorrect password!',
     },
-    id: 0,
+    id: req.id,
   };
   const user = { ...req.data, index: req.id };
   const foundUser = findUserByName(user.name);
 
-  if (foundUser && foundUser.password === user.password) {
-    const { index, name } = foundUser;
-    res.data = {
-      index,
-      name,
-      error: false,
-      errorText: '',
-    };
-  } else if (!foundUser) {
-    const { index, name } = addUser(user);
+  if (!foundUser || (foundUser && foundUser.password === user.password)) {
+    const { index, name } = foundUser ? foundUser : addUser(user);
     res.data = {
       index,
       name,
