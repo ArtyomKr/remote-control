@@ -1,2 +1,2 @@
-export { addUser, findUser } from './userHelpers.js';
-export { createRoom } from './roomHelpers.js';
+export { addUser, findUserByName, findUserById } from './userHelpers.js';
+export { createRoom, addPlayerToRoom } from './roomHelpers.js';
