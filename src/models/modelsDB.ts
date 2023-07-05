@@ -22,7 +22,7 @@ interface IRoom {
 interface IGame {
   gameId: number;
   players: {
-    id: number;
+    index: number;
     name: string;
     ships: IShip[];
   }[];
@@ -38,4 +38,4 @@ interface IShip {
   type: 'small' | 'medium' | 'large' | 'huge';
 }
 
-export { IUser, IShip, IRoom, IDB, IDBWrapped };
+export { IUser, IShip, IRoom, IGame, IDB, IDBWrapped };
