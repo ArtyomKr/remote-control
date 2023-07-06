@@ -55,7 +55,7 @@ interface IUpdateRoomRes {
   data: IRoom[];
   id: number;
 }
-// Ship
+// Pre game
 interface IAddShipsReq {
   type: 'add_ships';
   data: {
@@ -65,6 +65,16 @@ interface IAddShipsReq {
   };
   id: number;
 }
+
+interface IStartGameRes {
+  type: 'start_game';
+  data: {
+    ships: IShip[];
+    currentPlayerIndex: number;
+  };
+  id: number;
+}
+
 // Game actions
 interface IAttackReq {
   type: 'attack';
@@ -124,6 +134,7 @@ export {
   IAddPlayerReq,
   ICreateGameRes,
   IAddShipsReq,
+  IStartGameRes,
   IAttackReq,
   IAttackRes,
   IRandomAttackReq,

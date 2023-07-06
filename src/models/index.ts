@@ -7,6 +7,7 @@ export {
   IAddPlayerReq,
   ICreateGameRes,
   IAddShipsReq,
+  IStartGameRes,
   IAttackReq,
   IAttackRes,
   IRandomAttackReq,
