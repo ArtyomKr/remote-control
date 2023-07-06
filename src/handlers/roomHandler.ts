@@ -2,7 +2,7 @@ import { IAddPlayerReq, ICreateGameRes, ICreateRoomReq, IUpdateRoomRes } from '.
 import { addPlayerToRoom, createRoom, createGame, deleteRoom } from '../dbHelpers/index.js';
 import updateRoomsRes from './updateRooms.js';
 
-function roomHandler(req: ICreateRoomReq | IAddPlayerReq): IUpdateRoomRes | ICreateGameRes {
+function roomHandler(req: ICreateRoomReq | IAddPlayerReq): { type: 'create_game',  resArr: ICreateGameRes[]} | IUpdateRoomRes {
   if (req.type === 'create_room') {
     createRoom();
   }
@@ -12,14 +12,18 @@ function roomHandler(req: ICreateRoomReq | IAddPlayerReq): IUpdateRoomRes | ICre
     if (room.roomUsers.length >= 2) {
       deleteRoom(indexRoom);
       const game = createGame(room.roomUsers);
-      return {
+      const resArr = game.players.map(({ index }): ICreateGameRes => ({
         type: 'create_game',
         data: {
           idGame: game.gameId,
-          idPlayer: req.id === game.players[0].index ? game.players[1].index : game.players[0].index,
+          idPlayer: index,
         },
-        id: req.id,
-      };
+        id: index,
+      }));
+      return {
+        type: 'create_game',
+        resArr,
+      }
     }
   }
   return updateRoomsRes();
