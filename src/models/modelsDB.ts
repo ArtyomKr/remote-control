@@ -25,7 +25,13 @@ interface IGame {
     index: number;
     name: string;
     ships: IShip[];
+    placedShips: IPlacedShip[];
   }[];
+}
+
+interface IPlacedShip {
+  pos: { x: number; y: number }[];
+  killed: boolean;
 }
 
 interface IShip {
@@ -38,4 +44,4 @@ interface IShip {
   type: 'small' | 'medium' | 'large' | 'huge';
 }
 
-export { IUser, IShip, IRoom, IGame, IDB, IDBWrapped };
+export { IUser, IShip, IPlacedShip, IRoom, IGame, IDB, IDBWrapped };

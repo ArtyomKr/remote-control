@@ -14,4 +14,4 @@ export {
   IChangeTurnRes,
   IFinishGameRes,
 } from './modelsAPI';
-export { IUser, IShip, IGame, IDB, IDBWrapped } from './modelsDB';
+export { IUser, IShip, IGame, IDB, IDBWrapped, IPlacedShip } from './modelsDB';
