@@ -79,7 +79,7 @@ interface IStartGameRes {
 interface IAttackReq {
   type: 'attack';
   data: {
-    gameID: number;
+    gameId: number;
     x: number;
     y: number;
     indexPlayer: number;
