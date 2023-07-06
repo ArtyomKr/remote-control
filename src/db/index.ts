@@ -10,7 +10,6 @@ const db: IDBWrapped = {
 
 function setDB(newDb: IDB) {
   db.battleship = newDb;
-  console.log('DB: ' + JSON.stringify(db.battleship));
   return db.battleship;
 }
 
