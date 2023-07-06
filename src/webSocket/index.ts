@@ -5,6 +5,8 @@ import roomHandler from '../handlers/roomHandler.js';
 import { formServerResJson } from '../utils/index.js';
 import updateRoomsRes from '../handlers/updateRooms.js';
 import preGameHandler from '../handlers/preGameHandler.js';
+import gameHandler from '../handlers/gameHandler.js';
+import { getEnemyPlayer } from '../dbHelpers/index.js';
 
 const WS_PORT = process.env.WS_PORT;
 const clients: { ws: WebSocket; id: number }[] = [];
@@ -45,6 +47,7 @@ wsServer.on('connection', (ws, req) => {
         res = preGameHandler(req);
         break;
       case 'attack':
+        res = gameHandler(req);
         break;
     }
 
@@ -64,6 +67,10 @@ wsServer.on('connection', (ws, req) => {
           break;
         case 'start_game':
           res.resArr.forEach((res) => sendSpecificClients(formServerResJson(res), [res.data.currentPlayerIndex]));
+          break;
+        case 'attack':
+          const enemyId = getEnemyPlayer(req.data.gameId, req.data.indexPlayer)?.index ?? NaN;
+          sendSpecificClients(formServerResJson(res), [res.data.currentPlayer, enemyId]);
           break;
         default:
           ws.send(formServerResJson(res));
