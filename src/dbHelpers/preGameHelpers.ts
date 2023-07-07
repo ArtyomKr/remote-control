@@ -10,6 +10,7 @@ function createGame(players: Omit<IUser, 'password'>[]) {
   const game = {
     gameId: db.games.length,
     players: <IGame['players']>players,
+    userMakingTurn: players[0].index,
   };
   db.games.push(game);
   setDB(db);

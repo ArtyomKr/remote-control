@@ -27,6 +27,7 @@ interface IGame {
     ships: IShip[];
     placedShips: IPlacedShip[];
   }[];
+  userMakingTurn: number;
 }
 
 interface IPlacedShip {
