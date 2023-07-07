@@ -1,20 +1,27 @@
 import { IAttackReq, IAttackRes } from '../models/index.js';
-import { attack } from '../dbHelpers/index.js';
+import { attack, calcSplashWave } from '../dbHelpers/index.js';
 
-function gameHandler(req: IAttackReq): IAttackRes {
+function gameHandler(req: IAttackReq): { type: 'attack_multiple'; resArr: IAttackRes[] } | IAttackRes {
   const { gameId, indexPlayer, x, y } = req.data;
-  return {
-    type: 'attack',
-    data: {
-      position: {
-        x,
-        y,
+  const { target, status } = attack(gameId, indexPlayer, { x, y });
+  if (status === 'killed') {
+    const splashCoord = calcSplashWave(target);
+    //   type: 'attack_multiple',
+    //   resArr:
+    //
+  } else
+    return {
+      type: 'attack',
+      data: {
+        position: {
+          x,
+          y,
+        },
+        currentPlayer: indexPlayer,
+        status: status,
       },
-      currentPlayer: indexPlayer,
-      status: attack(gameId, indexPlayer, { x, y }),
-    },
-    id: req.id,
-  };
+      id: req.id,
+    };
 }
 
 export default gameHandler;
