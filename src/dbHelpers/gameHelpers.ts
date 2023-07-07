@@ -1,15 +1,15 @@
 import { getDB, setDB } from '../db/index.js';
-import { IPlacedShip } from '../models/index.js';
+import { IGame, IPlacedShip } from '../models/index.js';
 
 interface IAttackResult {
   target: IPlacedShip | null;
   status: 'miss' | 'killed' | 'shot';
 }
 
-function attack(gameId: number, playerId: number, coord: { x: number; y: number }): IAttackResult {
+function attack(gameId: number, userId: number, coord: { x: number; y: number }): IAttackResult {
   const db = getDB();
   const game = db.games.find(({ gameId: id }) => id === gameId);
-  const placedShips = <IPlacedShip[]>game?.players.find(({ index }) => index !== playerId)?.placedShips;
+  const placedShips = <IPlacedShip[]>game?.players.find(({ index }) => index !== userId)?.placedShips;
 
   const attackResult: IAttackResult = {
     target: null,
@@ -34,13 +34,17 @@ function attack(gameId: number, playerId: number, coord: { x: number; y: number 
   return attackResult;
 }
 
-function getEnemyPlayer(gameId: number, playerId: number) {
+function findPlayerGame(userId: number) {
   const db = getDB();
-  const game = db.games.find(({ gameId: id }) => id === gameId);
-  return game?.players.find(({ index }) => index !== playerId);
+  return <IGame>db.games.find(({ players }) => players.some(({ index }) => index === userId));
 }
 
-function calcSplashWave({ pos, killed }: IPlacedShip) {
+function getEnemyPlayer(userId: number) {
+  const game = findPlayerGame(userId);
+  return game?.players.find(({ index }) => index !== userId);
+}
+
+function calcSplashWave({ pos }: IPlacedShip) {
   const splashCoord: { x: number; y: number }[] = [];
   pos.forEach(({ x, y }) => {
     for (let deltaX = -1; deltaX <= 1; deltaX++) {
@@ -56,4 +60,4 @@ function calcSplashWave({ pos, killed }: IPlacedShip) {
   );
 }
 
-export { attack, getEnemyPlayer, calcSplashWave };
+export { attack, getEnemyPlayer, findPlayerGame, calcSplashWave };
