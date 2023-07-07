@@ -30,7 +30,7 @@ interface IGame {
 }
 
 interface IPlacedShip {
-  pos: { x: number; y: number }[];
+  pos: { x: number; y: number; destroyed: boolean }[];
   killed: boolean;
 }
 

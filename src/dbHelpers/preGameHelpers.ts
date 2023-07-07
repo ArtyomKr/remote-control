@@ -35,8 +35,8 @@ function placeShips(ships: IShip[]) {
   return ships.map(({ direction, position, length }) => {
     const empty = new Array(length).fill(null);
     const pos = direction
-      ? empty.map((el, i) => ({ x: position.x, y: position.y + i }))
-      : empty.map((el, i) => ({ x: position.x + i, y: position.y }));
+      ? empty.map((el, i) => ({ x: position.x, y: position.y + i, destroyed: false }))
+      : empty.map((el, i) => ({ x: position.x + i, y: position.y, destroyed: false }));
 
     return { pos, killed: false };
   });
