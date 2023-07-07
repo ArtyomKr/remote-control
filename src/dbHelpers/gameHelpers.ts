@@ -1,5 +1,5 @@
 import { getDB, setDB } from '../db/index.js';
-import { IPlacedShip, IShip } from '../models/index.js';
+import { IPlacedShip } from '../models/index.js';
 
 interface IAttackResult {
   target: IPlacedShip | null;
@@ -50,11 +50,10 @@ function calcSplashWave({ pos, killed }: IPlacedShip) {
       }
     }
   });
-  const filterAdjastingCells = splashCoord.filter(({ x, y }) => !pos.some((pos) => pos.x === x && pos.y === y));
-  const filterDuplicateCells = filterAdjastingCells.filter(
-    ({ x, y }, index) => filterAdjastingCells.findIndex((pos) => pos.x === x && pos.y === y) === index,
+  const filterAdjustingCells = splashCoord.filter(({ x, y }) => !pos.some((pos) => pos.x === x && pos.y === y));
+  return filterAdjustingCells.filter(
+    ({ x, y }, index) => filterAdjustingCells.findIndex((pos) => pos.x === x && pos.y === y) === index,
   );
-  return filterDuplicateCells;
 }
 
 export { attack, getEnemyPlayer, calcSplashWave };
