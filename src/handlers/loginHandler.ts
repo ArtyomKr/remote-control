@@ -10,7 +10,7 @@ function loginHandler(req: IPlayerReq): IPlayerRes {
       error: true,
       errorText: 'Incorrect password!',
     },
-    id: req.id,
+    id: 0,
   };
   const user = { ...req.data, index: req.id };
   const foundUser = findUserByName(user.name);

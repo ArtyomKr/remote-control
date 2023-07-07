@@ -5,6 +5,7 @@ function preGameHandler(req: IAddShipsReq): { type: 'start_game'; resArr: IStart
   const { indexPlayer, gameId, ships } = req.data;
   const game = addShips(indexPlayer, gameId, ships);
   const readyPlayers = game?.players.filter(({ ships }) => ships.length > 0) ?? [];
+
   if (readyPlayers.length === game?.players.length) {
     const resArr = readyPlayers.map(
       ({ index, ships }): IStartGameRes => ({
@@ -13,7 +14,7 @@ function preGameHandler(req: IAddShipsReq): { type: 'start_game'; resArr: IStart
           ships: ships,
           currentPlayerIndex: index,
         },
-        id: index,
+        id: 0,
       }),
     );
 
