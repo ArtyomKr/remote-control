@@ -6,7 +6,8 @@ import { formServerResJson } from '../utils/index.js';
 import updateRoomsRes from '../handlers/updateRooms.js';
 import preGameHandler from '../handlers/preGameHandler.js';
 import gameHandler from '../handlers/gameHandler.js';
-import { getEnemyPlayer } from '../dbHelpers/index.js';
+import { findPlayerGame, getEnemyPlayer, isThisPlayerTurn, passTurn } from '../dbHelpers/index.js';
+import turnRes from '../handlers/turnRes.js';
 
 const WS_PORT = process.env.WS_PORT;
 const clients: { ws: WebSocket; id: number }[] = [];
@@ -47,6 +48,7 @@ wsServer.on('connection', (ws, req) => {
         res = preGameHandler(req);
         break;
       case 'attack':
+        if (!isThisPlayerTurn(req.data.indexPlayer)) break;
         res = gameHandler(req);
         break;
     }
@@ -66,11 +68,15 @@ wsServer.on('connection', (ws, req) => {
           sendAllClients(formServerResJson(updateRoomsRes()));
           break;
         case 'start_game':
+          const players = res.resArr.map(({ data }) => data.currentPlayerIndex);
           res.resArr.forEach((res) => sendSpecificClients(formServerResJson(res), [res.data.currentPlayerIndex]));
+          sendSpecificClients(formServerResJson(turnRes(req.id)), players);
           break;
         case 'attack':
-          const enemyId = getEnemyPlayer(req.data.gameId, req.data.indexPlayer)?.index ?? NaN;
-          sendSpecificClients(formServerResJson(res), [res.data.currentPlayer, enemyId]);
+          const enemyId = getEnemyPlayer(req.data.indexPlayer)?.index ?? NaN;
+          res.resArr.forEach((res) => sendSpecificClients(formServerResJson(res), [res.data.currentPlayer, enemyId]));
+          if (res.resArr[0].data.status === 'miss') passTurn(findPlayerGame(req.id).gameId);
+          sendSpecificClients(formServerResJson(turnRes(req.id)), [req.id, enemyId]);
           break;
         default:
           ws.send(formServerResJson(res));
