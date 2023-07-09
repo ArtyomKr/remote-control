@@ -1,8 +1,13 @@
-import { IAttackReq, IAttackRes } from '../models/index.js';
-import { attack, calcSplashWave } from '../dbHelpers/index.js';
+import { IAttackReq, IAttackRes, IRandomAttackReq } from '../models/index.js';
+import { attack, calcSplashWave, generateRandomPos } from '../dbHelpers/index.js';
 
-function gameHandler(req: IAttackReq): { type: 'attack'; resArr: IAttackRes[] } {
-  const attackArr = createAttackArr(req.data);
+function attackHandler(req: IAttackReq | IRandomAttackReq): { type: 'attack'; resArr: IAttackRes[] } {
+  if (!('x' in req.data)) {
+    const randomPos = generateRandomPos(req.data.indexPlayer);
+    (<IAttackReq['data']>req.data).x = randomPos.x;
+    (<IAttackReq['data']>req.data).y = randomPos.y;
+  }
+  const attackArr = createAttackArr(<IAttackReq['data']>req.data);
 
   const resArr = attackArr.map(
     ({ tile, status }): IAttackRes => ({
@@ -43,4 +48,4 @@ function createAttackArr(
   } else return regularAttack;
 }
 
-export default gameHandler;
+export default attackHandler;
