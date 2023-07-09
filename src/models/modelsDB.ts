@@ -2,6 +2,7 @@ interface IDB {
   users: IUser[];
   rooms: IRoom[];
   games: IGame[];
+  winners: IWinner[];
 }
 
 interface IDBWrapped {
@@ -26,8 +27,15 @@ interface IGame {
     name: string;
     ships: IShip[];
     placedShips: IPlacedShip[];
+    turnHistory: ITurn[];
   }[];
   userMakingTurn: number;
+}
+
+interface ITurn {
+  x: number;
+  y: number;
+  result: 'miss' | 'killed' | 'shot';
 }
 
 interface IPlacedShip {
@@ -45,4 +53,9 @@ interface IShip {
   type: 'small' | 'medium' | 'large' | 'huge';
 }
 
-export { IUser, IShip, IPlacedShip, IRoom, IGame, IDB, IDBWrapped };
+interface IWinner {
+  name: string;
+  wins: number;
+}
+
+export { IUser, IShip, IPlacedShip, ITurn, IRoom, IGame, IDB, IDBWrapped };
