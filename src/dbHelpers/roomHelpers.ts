@@ -29,9 +29,9 @@ function deleteRoom(roomIndex: number) {
   setDB(db);
 }
 
-function userAlreadyInRoom(userId: number) {
+function findPlayerRoom(userId: number): IRoom | undefined {
   const db = getDB();
-  return db.rooms.some(({ roomUsers }) => roomUsers.some(({ index }) => index === userId));
+  return db.rooms.find(({ roomUsers }) => roomUsers.some(({ index }) => index === userId));
 }
 
-export { createRoom, addPlayerToRoom, deleteRoom, userAlreadyInRoom };
+export { createRoom, addPlayerToRoom, deleteRoom, findPlayerRoom };
