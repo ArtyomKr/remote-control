@@ -5,6 +5,7 @@ const db: IDBWrapped = {
     users: [],
     rooms: [],
     games: [],
+    winners: [],
   },
 };
 
