@@ -23,7 +23,7 @@ interface IWinnerRes {
   data: {
     name: string;
     wins: number;
-  };
+  }[];
   id: number;
 }
 // Room
@@ -101,9 +101,9 @@ interface IAttackRes {
 }
 
 interface IRandomAttackReq {
-  type: 'attack';
+  type: 'randomAttack';
   data: {
-    gameID: number;
+    gameId: number;
     indexPlayer: number;
   };
   id: number;
