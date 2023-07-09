@@ -2,11 +2,13 @@ import { WebSocketServer, WebSocket } from 'ws';
 import 'dotenv/config';
 import loginHandler from '../handlers/loginHandler.js';
 import roomHandler from '../handlers/roomHandler.js';
-import { formServerResJson } from '../utils/index.js';
+import { createShipPositions, formServerResJson } from '../utils/index.js';
 import updateRoomsRes from '../handlers/updateRooms.js';
 import preGameHandler from '../handlers/preGameHandler.js';
 import attackHandler from '../handlers/attackHandler.js';
 import {
+  addShips,
+  addUser, createRoom,
   deleteGame,
   deleteRoom,
   findPlayerGame,
@@ -19,7 +21,8 @@ import {
 import turnRes from '../handlers/turnRes.js';
 import finishGameHandler from '../handlers/finishGameHandler.js';
 import winnerRecordHandler from '../handlers/winnerRecordHandler.js';
-import { IGame } from '../models';
+import { ICreateGameRes, IGame, IUpdateRoomRes } from '../models';
+import { IRoom } from '../models/modelsDB';
 
 const WS_PORT = process.env.WS_PORT;
 const clients: { ws: WebSocket; id: number }[] = [];
@@ -65,6 +68,29 @@ wsServer.on('connection', (ws, req) => {
         res = attackHandler(req);
         if (hasPlayerWon(CLIENT_ID)) res = finishGameHandler(CLIENT_ID);
         break;
+      case 'single_play': {
+        const BOT_ID = (CLIENT_ID + 1) * 1000;
+        const bot = addUser({
+          name: `Bot #${BOT_ID}`,
+          password: '',
+          index: BOT_ID,
+        });
+
+        if (!findPlayerRoom(CLIENT_ID)) {
+          const { roomId } = createRoom(CLIENT_ID);
+          const res = <{ type: 'create_game'; resArr: ICreateGameRes[] }>roomHandler({
+            type: 'add_user_to_room',
+            data: {
+              indexRoom: roomId,
+            },
+            id: BOT_ID,
+          });
+
+          addShips(BOT_ID, res.resArr[0].data.idGame, createShipPositions());
+          ws.send(formServerResJson(res.resArr[0]));
+        }
+        break;
+      }
     }
 
     //how to send response to client(s)
