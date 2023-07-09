@@ -6,6 +6,7 @@ function createGame(players: Omit<IUser, 'password'>[]) {
   (<IGame['players']>players).forEach((player) => {
     player.ships = [];
     player.placedShips = [];
+    player.turnHistory = [];
   });
   const game = {
     gameId: db.games.length,
@@ -43,4 +44,11 @@ function placeShips(ships: IShip[]) {
   });
 }
 
-export { createGame, addShips };
+function deleteGame(gameIndex: number) {
+  const db = getDB();
+  db.games = db.games.filter(({ gameId }) => gameId !== gameIndex);
+
+  setDB(db);
+}
+
+export { createGame, addShips, deleteGame };
