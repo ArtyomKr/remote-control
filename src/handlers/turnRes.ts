@@ -1,8 +1,8 @@
-import { IChangeTurnRes } from '../models/index.js';
-import { findPlayerGame, getCurrentTurn, passTurn } from '../dbHelpers/index.js';
+import { IChangeTurnRes, IGame } from '../models/index.js';
+import { findPlayerGame } from '../dbHelpers/index.js';
 
 function turnRes(userId: number): IChangeTurnRes {
-  const { userMakingTurn } = findPlayerGame(userId);
+  const { userMakingTurn } = <IGame>findPlayerGame(userId);
 
   return {
     type: 'turn',
