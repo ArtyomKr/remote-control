@@ -75,6 +75,12 @@ interface IStartGameRes {
   id: number;
 }
 
+interface IStartSinglePlayReq {
+  type: 'single_play';
+  data: '';
+  id: number;
+}
+
 // Game actions
 interface IAttackReq {
   type: 'attack';
@@ -140,4 +146,5 @@ export {
   IRandomAttackReq,
   IChangeTurnRes,
   IFinishGameRes,
+  IStartSinglePlayReq,
 };

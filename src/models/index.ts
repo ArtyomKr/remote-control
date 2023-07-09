@@ -13,5 +13,6 @@ export {
   IRandomAttackReq,
   IChangeTurnRes,
   IFinishGameRes,
+  IStartSinglePlayReq,
 } from './modelsAPI';
 export { IUser, IShip, IGame, ITurn, IDB, IDBWrapped, IPlacedShip } from './modelsDB';
