@@ -8,7 +8,8 @@ import preGameHandler from '../handlers/preGameHandler.js';
 import attackHandler from '../handlers/attackHandler.js';
 import {
   addShips,
-  addUser, createRoom,
+  addUser,
+  createRoom,
   deleteGame,
   deleteRoom,
   findPlayerGame,
@@ -21,21 +22,22 @@ import {
 import turnRes from '../handlers/turnRes.js';
 import finishGameHandler from '../handlers/finishGameHandler.js';
 import winnerRecordHandler from '../handlers/winnerRecordHandler.js';
-import { ICreateGameRes, IGame, IUpdateRoomRes } from '../models';
-import { IRoom } from '../models/modelsDB';
+import { ICreateGameRes, IGame } from '../models';
 
 const WS_PORT = process.env.WS_PORT;
-const clients: { ws: WebSocket; id: number }[] = [];
+const clients: { ws: WebSocket; id: number; playerId: number | undefined; singlePlayer: boolean }[] = [];
 
 const wsServer = new WebSocketServer({ port: Number(WS_PORT) });
 
 wsServer.on('connection', (ws, req) => {
   const CLIENT_ID = clients.length;
-  clients.push({ ws, id: CLIENT_ID });
+  clients.push({ ws, id: CLIENT_ID, playerId: undefined, singlePlayer: false });
 
   const sendAllClients = (data: string) => clients.forEach(({ ws }) => ws.send(data));
   const sendSpecificClients = (data: string, clientsId: number[]) => {
-    clients.filter(({ id }) => clientsId.includes(id)).forEach(({ ws }) => ws.send(data));
+    clients
+      .filter(({ playerId }) => playerId !== undefined && clientsId.includes(playerId))
+      .forEach(({ ws }) => ws.send(data));
   };
 
   console.log('\x1b[33m%s\x1b[0m', `Established WebSocket connection with ${req.headers.origin}\0`);
@@ -45,15 +47,17 @@ wsServer.on('connection', (ws, req) => {
   ws.on('message', (data) => {
     console.log(`\x1b[35mreceived\x1b[0m: ${data.toString()}`);
 
+    const PLAYER_ID = clients[CLIENT_ID].playerId ?? CLIENT_ID;
     const req = JSON.parse(data.toString());
     req.data = req.data ? JSON.parse(req.data) : '';
-    req.id = CLIENT_ID;
+    req.id = PLAYER_ID;
 
     let res;
 
     switch (req.type) {
       case 'reg':
         res = loginHandler(req);
+        clients[CLIENT_ID].playerId = res.data.index;
         break;
       case 'create_room':
       case 'add_user_to_room':
@@ -66,29 +70,32 @@ wsServer.on('connection', (ws, req) => {
       case 'randomAttack':
         if (!isThisPlayerTurn(req.data.indexPlayer)) break;
         res = attackHandler(req);
-        if (hasPlayerWon(CLIENT_ID)) res = finishGameHandler(CLIENT_ID);
+        if (hasPlayerWon(PLAYER_ID)) res = finishGameHandler(PLAYER_ID);
         break;
       case 'single_play': {
-        const BOT_ID = (CLIENT_ID + 1) * 1000;
-        const bot = addUser({
+        const BOT_ID = (PLAYER_ID + 1) * 1000;
+        addUser({
           name: `Bot #${BOT_ID}`,
           password: '',
           index: BOT_ID,
         });
 
-        if (!findPlayerRoom(CLIENT_ID)) {
-          const { roomId } = createRoom(CLIENT_ID);
-          const res = <{ type: 'create_game'; resArr: ICreateGameRes[] }>roomHandler({
-            type: 'add_user_to_room',
-            data: {
-              indexRoom: roomId,
-            },
-            id: BOT_ID,
-          });
+        const currentRoom = findPlayerRoom(PLAYER_ID);
+        if (currentRoom) deleteRoom(currentRoom.roomId);
 
-          addShips(BOT_ID, res.resArr[0].data.idGame, createShipPositions());
-          ws.send(formServerResJson(res.resArr[0]));
-        }
+        const { roomId } = createRoom(PLAYER_ID);
+        const res = <{ type: 'create_game'; resArr: ICreateGameRes[] }>roomHandler({
+          type: 'add_user_to_room',
+          data: {
+            indexRoom: roomId,
+          },
+          id: BOT_ID,
+        });
+
+        addShips(BOT_ID, res.resArr[0].data.idGame, createShipPositions());
+        ws.send(formServerResJson(res.resArr[0]));
+        clients[CLIENT_ID].singlePlayer = true;
+
         break;
       }
     }
@@ -116,16 +123,30 @@ wsServer.on('connection', (ws, req) => {
         }
         case 'attack': {
           const enemyId = getEnemyPlayer(req.data.indexPlayer)?.index ?? 0;
-          res.resArr.forEach((res) => sendSpecificClients(formServerResJson(res), [res.data.currentPlayer, enemyId]));
-          if (res.resArr[0].data.status === 'miss') passTurn((<IGame>findPlayerGame(CLIENT_ID)).gameId);
-          sendSpecificClients(formServerResJson(turnRes(CLIENT_ID)), [CLIENT_ID, enemyId]);
+          const game = <IGame>findPlayerGame(PLAYER_ID);
+          res.resArr.forEach((res) => sendSpecificClients(formServerResJson(res), [CLIENT_ID, enemyId]));
+          if (res.resArr[0].data.status === 'miss') passTurn(game.gameId);
+          sendSpecificClients(formServerResJson(turnRes(PLAYER_ID)), [CLIENT_ID, enemyId]);
+
+          while (!isThisPlayerTurn(PLAYER_ID) && clients[CLIENT_ID].singlePlayer) {
+            const botRes = attackHandler({
+              type: 'randomAttack',
+              data: { gameId: game.gameId, indexPlayer: enemyId },
+              id: 0,
+            });
+            botRes.resArr.forEach((res) => setTimeout(() => ws.send(formServerResJson(res)), 500));
+            if (botRes.resArr[0].data.status === 'miss') passTurn(game.gameId);
+
+            ws.send(formServerResJson(turnRes(PLAYER_ID)));
+          }
           break;
         }
         case 'finish': {
           const enemyId = getEnemyPlayer(req.data.indexPlayer)?.index ?? 0;
           sendSpecificClients(formServerResJson(res), [CLIENT_ID, enemyId]);
-          sendAllClients(formServerResJson(winnerRecordHandler(CLIENT_ID)));
-          deleteGame((<IGame>findPlayerGame(CLIENT_ID)).gameId);
+          sendAllClients(formServerResJson(winnerRecordHandler(PLAYER_ID)));
+          deleteGame((<IGame>findPlayerGame(PLAYER_ID)).gameId);
+          clients[CLIENT_ID].singlePlayer = false;
           break;
         }
         default:
@@ -140,11 +161,14 @@ wsServer.on('connection', (ws, req) => {
 
   ws.on('close', () => {
     console.log('\x1b[31m%s\x1b[0m', `${req.headers.origin} disconnected\0`);
-    const playerGame = findPlayerGame(CLIENT_ID);
-    const userRoom = findPlayerRoom(CLIENT_ID);
+    const PLAYER_ID = clients[CLIENT_ID].playerId ?? CLIENT_ID;
+
+    const playerGame = findPlayerGame(PLAYER_ID);
+    const userRoom = findPlayerRoom(PLAYER_ID);
+    clients[CLIENT_ID].singlePlayer = false;
 
     if (playerGame) {
-      const enemyId = getEnemyPlayer(CLIENT_ID)?.index ?? 0;
+      const enemyId = getEnemyPlayer(PLAYER_ID)?.index ?? 0;
       const res = finishGameHandler(enemyId);
       sendSpecificClients(formServerResJson(res), [CLIENT_ID, enemyId]);
       sendAllClients(formServerResJson(winnerRecordHandler(enemyId)));
